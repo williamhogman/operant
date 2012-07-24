@@ -1,8 +1,6 @@
 """Module for badges
 """
 from __future__ import (with_statement,print_function,division,absolute_import)
-from time import time
-from collections import namedtuple
 
 class BadgePrototype(object):
     """A prototype that builds a badge"""
