@@ -44,7 +44,8 @@ class Badges(object):
     def register(cls, badge):
         """Registers a badge with the badges collection"""
         if badge.badge_id in cls._badges:
-            raise RuntimeError("A badge with the id {0} has already been registered"
+            raise RuntimeError("A badge with the id {0} "
+                               "has already been registered"
                                .format(badge.badge_id))
         cls._badges[badge.badge_id] = badge
 
