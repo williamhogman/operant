@@ -1,10 +1,11 @@
 """Module for actions that the user class should implement
 """
-from __future__ import (with_statement,print_function,division,absolute_import)
+from __future__ import (
+    with_statement, print_function, division, absolute_import)
 
 
 class OperantUserBase(object):
-    """Class containing abstract operations for users""" 
+    """Class containing abstract operations for users"""
 
     def operant_id(self):
         """Returns a value that uniquely identifies the user
@@ -23,6 +24,6 @@ class OperantUserBase(object):
         """ Returns a valid UserDatastore"""
         raise NotImplementedError()
 
+
 class UserMixin(OperantUserBase):
     """Class to mixin with your user class to gamify it"""
-
