@@ -4,15 +4,26 @@ import zope.interface as interface
 class ISetOps(interface.Interface):
     """Interface with set operations needed by operant"""
 
-    def has_attribute(self,name):
-        """Returns true if the user has the named attribute
+    def has_attribute(self,pair):
+        """Returns true if the user has the named attribute 
+
+        The argument is a two-tuple or any other indexable collection
+        with a length of two. The first member of the collection is
+        the kind, such as operant.badge. The second member is
+        either a string or an int representing the attribute.
+
         
         This method should return true if the user's set of attributes
         contains the passed in attribute.
         """
 
-    def add_attribute(self,name):
+    def add_attribute(self,pair):
         """Gives the user the passed in attribute
+
+        The argument is a two-tuple or any other indexable collection
+        with a length of two. The first member of the collection is
+        the kind, such as operant.badge. The second member is either a
+        string or an int representing the attribute.
 
         This method should add the passed in attribute to the user's
         set of attributes. If the user already has the attribute it
@@ -25,8 +36,13 @@ class ISetOps(interface.Interface):
         added.
         """
 
-    def remove_attribute(self,name):
+    def remove_attribute(self,pair):
         """Removes the passed in attribute from the user
+
+        The argument is a two-tuple or any other indexable collection
+        with a length of two. The first member of the collection is
+        the kind, such as operant.badge. The second member is an
+        either a string or an int representing the attribute.
 
         This method should remove the passed in attribute from the
         user's set of attributes. If the set of attribute doesn't
@@ -34,7 +50,16 @@ class ISetOps(interface.Interface):
         sucessful.
         """
 
-
+    def attributes_in(self,name):
+        """Gets all attributes in the named bucket (e.g. operant.badge)
+        
+        This method should return all the attributes of the kind that
+        are present. The returned object should supply (contains, x in
+        y) and iteration (for x in y). Python built-in lists and sets
+        statisfies both these requirements, so if you're unsure you
+        can use those.
+        """
+        
 class ICounterOps(interface.Interface):
     """Interface for abstract numerical operations"""
 

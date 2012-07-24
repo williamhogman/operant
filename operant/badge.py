@@ -20,7 +20,7 @@ class BadgePrototype(object):
         return self._precondition(user)
 
     def _get_ds_name(self):
-        return "operant.badge."+self.badge_id
+        return ("operant.badge",self.badge_id)
 
     def _add_badge_to_user(self,user):
         ds = user.operant_ds()
