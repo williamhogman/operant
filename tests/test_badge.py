@@ -21,7 +21,7 @@ def test_no_dupes():
         "awarding a badge to a user who already has one should return false")
 
     # Checking should be done
-    ds.has_attribute.assert_called_once_with("operant.badge."+badge_id)
+    ds.has_attribute.assert_called_once_with(("operant.badge",badge_id))
     # but add_attribute shouldn't be called
     eq_(len(ds.add_attribute.mock_calls),0)
     # nor should it be logged
@@ -39,7 +39,7 @@ def test_award():
     rtn = badge.award(user)
     ok_(rtn)
 
-    dbname = "operant.badge."+badge_id
+    dbname = ("operant.badge",badge_id)
     # We should check before we add
     ds.has_attribute.assert_called_once_with(dbname)
     # and after that we should add it
