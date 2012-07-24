@@ -1,6 +1,7 @@
 """Module for actions that the user class should implement
 """
-    
+from __future__ import (with_statement,print_function,division,absolute_import)
+
 
 class OperantUserBase(object):
     """Class containing abstract operations for users""" 
