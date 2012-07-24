@@ -1,7 +1,7 @@
 """Module for badges
 """
-from __future__ import (
-    with_statement, print_function, division, absolute_import)
+from __future__ import (with_statement, print_function,
+                        division, absolute_import)
 
 
 class BadgePrototype(object):
