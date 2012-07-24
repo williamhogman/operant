@@ -1,8 +1,8 @@
 """Tests for the badge system"""
 from mock import Mock,patch,ANY
-from nose.tools import ok_,eq_
+from nose.tools import ok_,eq_,raises
 
-from operant.badge import BadgePrototype
+from operant.badge import BadgePrototype,get_badge,register_badge
 
 def user_with_ds(ds):
     user = Mock()
@@ -46,3 +46,21 @@ def test_award():
     ds.add_attribute.assert_called_once_with(dbname)
 
     ds.log.assert_called_once_with("badge.awarded",badge_id)
+
+@raises(RuntimeError)
+def test_register_existing_badge():
+    b = BadgePrototype("test.testbadge3")
+    register_badge(b)
+
+    b2 = BadgePrototype("test.testbadge3")
+    
+    register_badge(b2)
+
+def test_register_badge():
+    b = BadgePrototype("test.testbadge4")
+    register_badge(b)
+
+    eq_(get_badge("test.testbadge4"),b)
+
+def test_get_badge():
+    eq_(get_badge("___not.a.badge"),None)

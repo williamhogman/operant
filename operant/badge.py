@@ -34,3 +34,23 @@ class BadgePrototype(object):
             return self._add_badge_to_user(user)
         else:
             return False
+
+class Badges(object):
+    """Class holding every registered badge in the system"""
+    _badges = {}
+
+    @classmethod
+    def register(cls,badge):
+        """Registers a badge with the badges collection"""
+        if badge.badge_id in cls._badges:
+            raise RuntimeError("A badge with the id {0} has already been registered"
+                               .format(badge.badge_id))
+        cls._badges[badge.badge_id] = badge
+
+    @classmethod
+    def get(cls,badge_id):
+        """Gets a named badge from the badge collection"""
+        return cls._badges.get(badge_id,None)
+
+get_badge = Badges.get
+register_badge = Badges.register
