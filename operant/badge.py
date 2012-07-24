@@ -14,15 +14,19 @@ class BadgePrototype(object):
         return True
 
     def _check_preconditions(self,user):
-        if user.has_badge(self.badge_id):
+        if user.operant_ds().has_attribute(self._get_ds_name()):
             return False
 
         return self._precondition(user)
 
+    def _get_ds_name(self):
+        return "operant.badge."+self.badge_id
+
     def _add_badge_to_user(self,user):
-        badge = AwardedBadge(self.badge_id,user.operant_id(),int(time()))
-        user.add_badge(badge)
-        return badge
+        ds = user.operant_ds()
+        ds.add_attribute(self._get_ds_name())
+        ds.log("badge.awarded",self.badge_id)
+        return True
 
     def award(self,user):
         """Awards a badge to a user"""
@@ -30,6 +34,3 @@ class BadgePrototype(object):
             return self._add_badge_to_user(user)
         else:
             return False
-        
-
-AwardedBadge = namedtuple("AwardedBadge",["badge_id","to","awarded_at"])
