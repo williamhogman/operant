@@ -1,5 +1,9 @@
 """Tests for the badge system"""
-from mock import Mock,patch,ANY
+try:
+    from mock import Mock,patch,ANY
+except ImportError:
+    from unittest.mock import Mock,patch,ANY
+
 from nose.tools import ok_,eq_,raises
 
 from operant.badge import BadgePrototype,get_badge,register_badge
