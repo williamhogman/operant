@@ -4,6 +4,8 @@ from __future__ import (with_statement, print_function,
 import random
 import time
 
+from itertools import chain
+
 
 def runif():
     """Returns a value between 0 and 1 from a uniform distribution"""
@@ -25,13 +27,55 @@ def seconds():
 
 
 class RewardSchedule(object):
+
+    def __init__(self, reward=1):
+        self._reward = reward
+
     def __call__(self, *args, **kwargs):
         return self.calc_reward(*args, **kwargs)
 
+    def _repr_options(self):
+        return (None, None)
+
+    def __repr__(self):
+        main, opts = self._repr_options()
+        bfr = [self.abbrev]
+        if main:
+            bfr.append(str(main))
+        if opts:
+            bfr.append("(" + str(opts) + ")")
+        return "".join(bfr)
+
+    def _accepted_args(self, pargs, nargs):
+        as_named = chain(zip(self.tracking, pargs), nargs.items())
+        return dict((k, v) for (k, v) in as_named if k in self.tracking)
+
+    def _eval_condition(self, pargs, nargs, **kwargs):
+        accepted = self._accepted_args(pargs, nargs)
+        kwargs.update(accepted)
+        return self._condition(**kwargs)
+
+    def calc_reward(self, *args, **kwargs):
+        return self._reward if self._eval_condition(args, kwargs) else 0
+
 
 class RatioSchedule(RewardSchedule):
-    def calc_reward(self, *args, **kwargs):
-        return self._reward if self._condition(*args, **kwargs) else 0
+    def __init__(self, nth, *args, **kwargs):
+        self._nth = nth
+        super(RatioSchedule, self).__init__(*args, **kwargs)
+        # Optimize nth == 1
+        if self._nth == 1:
+            self._condition = lambda *args, **kwargs: True
+
+    def _repr_options(self):
+        if self._reward != 1:
+            return self._nth, "r=" + str(self._reward)
+        else:
+            return ""
+
+    def _accepted_args(self, pargs, nargs):
+        as_named = chain(zip(self.tracking, pargs), nargs.items())
+        return dict((k, v) for (k, v) in as_named if k in self.tracking)
 
 
 class FixedRatio(RatioSchedule):
@@ -40,13 +84,8 @@ class FixedRatio(RatioSchedule):
     To use this scheme you need to keep track of the number of
     occurances yourself.
     """
-
-    def __init__(self, nth, reward=1):
-        self._nth = nth
-        self._reward = reward
-        # Optimize nth == 1
-        if self._nth == 1:
-            self._condition = lambda current: True
+    abbrev = "FR"
+    tracking = ["current"]
 
     def _condition(self, current):
         return current > 0 and current % self._nth == 0
@@ -58,9 +97,14 @@ class VariableRatio(RatioSchedule):
     The probability is constant, thus resulting in a variable reward
     frequency.
     """
-    def __init__(self, nth, reward=1):
-        self._crit = 1 - 1 / nth
-        self._reward = reward
+    abbrev = "VR"
+    tracking = []
+
+    @property
+    def _crit(self):
+        if not hasattr(self, "__crit"):
+            self.__crit = 1 - 1 / self._nth
+        return self.__crit
 
     def _condition(self):
         return runif() > self._crit
@@ -68,10 +112,23 @@ class VariableRatio(RatioSchedule):
 
 class IntervalSchedule(RewardSchedule):
     """Base-classes for a schedule based on intervals."""
-    def calc_reward(self, last):
+    tracking = ["last"]
+
+    def __init__(self, interval, *args, **kwargs):
+        self._interval = interval
+        super(IntervalSchedule, self).__init__(*args, **kwargs)
+
+    def calc_reward(self, *args, **kwargs):
         now = seconds()
+        c = self._eval_condition(args, kwargs, now=now)
+        if c:
+            return (now, self._reward)
+        else:
+            return (None, 0)
+
+    def _condition(self, last, now=seconds()):
         delta = now - last
-        return (now, self._reward) if self._condition(delta) else (None, 0)
+        return self._delta_condition(delta)
 
 
 class FixedInterval(IntervalSchedule):
@@ -84,11 +141,8 @@ class FixedInterval(IntervalSchedule):
     containing the current time to update the last occurance with. The
     second item is an int with the points to reward, if any.
     """
-    def __init__(self, interval, reward=1):
-        self._reward = reward
-        self._interval = interval
 
-    def _condition(self, delta):
+    def _delta_condition(self, delta):
         return delta >= self._interval
 
 
@@ -113,10 +167,10 @@ class VariableInterval(IntervalSchedule):
     purposes this should be a good enough approximation.
     """
 
-    def __init__(self, interval, s=1, reward=1):
-        self._interval = interval
+    def __init__(self, interval, s=1, *args, **kwargs):
         self._s = s
-        self._reward = reward
+        super(VariableInterval, self).__init__(*args,
+                                               interval=interval, **kwargs)
 
-    def _condition(self, delta):
+    def _delta_condition(self, delta):
         return delta >= rnorm(self._interval, self._s)
