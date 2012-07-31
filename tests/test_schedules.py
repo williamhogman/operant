@@ -1,10 +1,11 @@
 """Tests for schedules"""
 try:
-    from unittest.mock import Mock, patch, ANY
+    from unittest.mock import Mock, patch, ANY, sentinel
 except ImportError:
-    from mock import Mock, patch, ANY
+    from mock import Mock, patch, ANY, sentinel
 
 from nose.tools import ok_, eq_, raises
+import collections
 
 import operant.schedules as s
 
@@ -86,3 +87,44 @@ class TestVariableInterval(object):
         # 30 - 20 = 10 not OK given our rnd
         eq_(f(20), (None, 0))
         rnd.assert_called_with(20, 1)
+
+
+class TestCombined(object):
+    def _mock_sched(self, ret):
+        sched = Mock()
+        sched.return_value = ret
+        sched.tracking = list()
+        return sched
+
+    def test_combining(self):
+        s1 = self._mock_sched(sentinel.r1)
+        s2 = self._mock_sched(sentinel.r2)
+        comb = s.Combined(s1, s2)
+
+        a, b = comb()
+
+        eq_(a, sentinel.r1)
+        eq_(b, sentinel.r2)
+
+    def test_null_combined(self):
+        comb = s.Combined([])
+        ret = comb()
+        ok_(isinstance(ret, collections.Iterable))
+        eq_(list(ret), [])
+
+    def test_applying_args(self):
+        s1 = self._mock_sched(sentinel.r1)
+        s2 = self._mock_sched(sentinel.r2)
+
+        s1.tracking = ["foo"]
+        s2.tracking = ["foo", "bar"]
+
+        comb = s.Combined(s1, s2)
+
+        ret = comb.call_nonlazy(foo=sentinel.foo_arg,
+                                bar=sentinel.bar_arg)
+
+        # Both should get foo
+        s1.assert_called_once_with(foo=sentinel.foo_arg)
+        s2.assert_called_once_with(foo=sentinel.foo_arg,
+                                   bar=sentinel.bar_arg)

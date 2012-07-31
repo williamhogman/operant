@@ -26,6 +26,22 @@ def seconds():
     return int(time.time())
 
 
+def _name_args(arglist, pargs, nargs):
+    """Constructs a keywords arguments from positional and kwargs
+
+    The dict is constructed u an ordered list of argument names,
+    positional arguments, and a dict of keyword arguments. The
+    returned dict contains all the arguments with proper names.
+    """
+
+    # Combine args of both kinds
+    both = chain(zip(arglist, pargs), nargs.items())
+    # Construct a dict from both. Although just checking named args
+    # would be more efficient placing the check at the end makes for
+    # more succinct code.
+    return dict((k, v) for (k, v) in both if k in arglist)
+
+
 class RewardSchedule(object):
 
     def __init__(self, reward=1):
@@ -46,9 +62,11 @@ class RewardSchedule(object):
             bfr.append("(" + str(opts) + ")")
         return "".join(bfr)
 
+    def __add__(self, other):
+        return Combined(self, other)
+
     def _accepted_args(self, pargs, nargs):
-        as_named = chain(zip(self.tracking, pargs), nargs.items())
-        return dict((k, v) for (k, v) in as_named if k in self.tracking)
+        return _name_args(self.tracking, pargs, nargs)
 
     def _eval_condition(self, pargs, nargs, **kwargs):
         accepted = self._accepted_args(pargs, nargs)
@@ -57,6 +75,85 @@ class RewardSchedule(object):
 
     def calc_reward(self, *args, **kwargs):
         return self._reward if self._eval_condition(args, kwargs) else 0
+
+
+class Combined(object):
+    """Combined reinforcement schedule
+
+    This class provides a way to combine reinforcement schedules, it
+    provides a reinforcement schedule-like interface taking all the
+    arguments that its components do. Positional arguments are
+    accepted in the order that they appear in the parts, that is the
+    first positonal argument passed in is given the name of the first
+    argument of the first schedule and so on.
+    """
+    __slots__ = ("_parts",)
+
+    def __init__(self, parts, *args):
+        if len(args):
+            parts = chain((parts, ), args)
+        self._parts = parts
+
+    def __iter__(self):
+        return iter(self._parts)
+
+    def __repr__(self):
+        return "Combined(" + ",".join(repr(x) for x in self._rparts) + ")"
+
+    def __add__(self, other):
+        if isinstance(other, Combined):
+            col = chain(self, other)
+        else:
+            col = chain(self, (other,))
+        return Combined(col)
+
+    @property
+    def _rparts(self):
+        """Gets an iterator iterating over parts or if non-lazy a list
+
+        Realizes the parts and then stores the as a list.
+        """
+        if isinstance(self._parts, list):
+            return self._parts
+
+        # Function for realizing the _parts
+        def _realize():
+            parts = list()
+            for part in self._parts:
+                parts.append(part)
+                yield part
+            self._parts = parts
+
+        return _realize()
+
+    def _complete_args(self):
+        all_args = chain.from_iterable(map(lambda x: x.tracking, self._rparts))
+        # Set doesn't guarantee sort order, so we use this hack.
+        args = list()
+        for x in all_args:
+            if not x in args:
+                args.append(x)
+        return args
+
+    def call_nonlazy(self, *args, **kwargs):
+        """ Calls all the handlers immediatly realizing the parts"""
+        return list(self._call_all(*args, **kwargs))
+
+    def __call__(self, *args, **kwargs):
+        return self._call_all(*args, **kwargs)
+
+    def _call_all(self, *args, **kwargs):
+        return self._call_all_with(_name_args(
+                                   self._complete_args(),
+                                   args,
+                                   kwargs))
+
+    def _call_all_with(self, kws):
+        for part in self._parts:
+            part_args = dict(
+                (k, w) for k, w in kws.items()
+                if k in part.tracking)
+            yield part(**part_args)
 
 
 class RatioSchedule(RewardSchedule):
@@ -120,7 +217,7 @@ class IntervalSchedule(RewardSchedule):
 
     def _repr_options(self):
         return (self._interval, None)
-        
+
     def calc_reward(self, *args, **kwargs):
         now = seconds()
         c = self._eval_condition(args, kwargs, now=now)
