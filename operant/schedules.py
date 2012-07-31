@@ -46,7 +46,7 @@ def _name_args(arglist, pargs, nargs):
     return dict((k, v) for (k, v) in both if k in arglist)
 
 
-class RewardSchedule(object):
+class _Schedule(object):
 
     def __init__(self, reward=1):
         self._reward = reward
@@ -160,10 +160,10 @@ class Combined(object):
             yield part(**part_args)
 
 
-class RatioSchedule(RewardSchedule):
+class _Ratio(_Schedule):
     def __init__(self, nth, *args, **kwargs):
         self._nth = nth
-        super(RatioSchedule, self).__init__(*args, **kwargs)
+        super(_Ratio, self).__init__(*args, **kwargs)
         # Optimize nth == 1
         if self._nth == 1:
             self._condition = lambda *args, **kwargs: True
@@ -179,7 +179,7 @@ class RatioSchedule(RewardSchedule):
         return dict((k, v) for (k, v) in as_named if k in self.tracking)
 
 
-class FixedRatio(RatioSchedule):
+class FixedRatio(_Ratio):
     """Fixed ratio schedule. Returns reward every nth responses
 
     To use this scheme you need to keep track of the number of
@@ -192,7 +192,7 @@ class FixedRatio(RatioSchedule):
         return current > 0 and current % self._nth == 0
 
 
-class VariableRatio(RatioSchedule):
+class VariableRatio(_Ratio):
     """Variable ratio schedule. Reward on average once every nth.
 
     The probability is constant, thus resulting in a variable reward
@@ -211,13 +211,13 @@ class VariableRatio(RatioSchedule):
         return runif() > self._crit
 
 
-class IntervalSchedule(RewardSchedule):
+class _Interval(_Schedule):
     """Base-classes for a schedule based on intervals."""
     tracking = ["last"]
 
     def __init__(self, interval, *args, **kwargs):
         self._interval = interval
-        super(IntervalSchedule, self).__init__(*args, **kwargs)
+        super(_Interval, self).__init__(*args, **kwargs)
 
     def _repr_options(self):
         return (self._interval, None)
@@ -235,7 +235,7 @@ class IntervalSchedule(RewardSchedule):
         return self._delta_condition(delta)
 
 
-class FixedInterval(IntervalSchedule):
+class FixedInterval(_Interval):
     """Fixed interval schedule. Reward if a minimum time has passed.
 
     This schedule is suitable for making what in game design is called
@@ -251,7 +251,7 @@ class FixedInterval(IntervalSchedule):
         return delta >= self._interval
 
 
-class VariableInterval(IntervalSchedule):
+class VariableInterval(_Interval):
     """Variable interval schedule. Reward if a random time has passed.
 
     The time limit is randomized using the interval as mean and a
