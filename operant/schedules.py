@@ -71,7 +71,7 @@ class RatioSchedule(RewardSchedule):
         if self._reward != 1:
             return self._nth, "r=" + str(self._reward)
         else:
-            return ""
+            return self._nth, ""
 
     def _accepted_args(self, pargs, nargs):
         as_named = chain(zip(self.tracking, pargs), nargs.items())
@@ -118,6 +118,9 @@ class IntervalSchedule(RewardSchedule):
         self._interval = interval
         super(IntervalSchedule, self).__init__(*args, **kwargs)
 
+    def _repr_options(self):
+        return (self._interval, None)
+        
     def calc_reward(self, *args, **kwargs):
         now = seconds()
         c = self._eval_condition(args, kwargs, now=now)
@@ -141,6 +144,7 @@ class FixedInterval(IntervalSchedule):
     containing the current time to update the last occurance with. The
     second item is an int with the points to reward, if any.
     """
+    abbrev = "FI"
 
     def _delta_condition(self, delta):
         return delta >= self._interval
@@ -166,6 +170,7 @@ class VariableInterval(IntervalSchedule):
     with more responses. However for most practical gamification
     purposes this should be a good enough approximation.
     """
+    abbrev = "VI"
 
     def __init__(self, interval, s=1, *args, **kwargs):
         self._s = s
