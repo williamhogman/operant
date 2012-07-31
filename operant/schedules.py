@@ -6,6 +6,10 @@ import time
 
 from itertools import chain
 
+__all__ = ["Combined", "FixedRatio",
+           "VariableRatio", "FixedInterval",
+           "VariableInterval"]
+
 
 def runif():
     """Returns a value between 0 and 1 from a uniform distribution"""
