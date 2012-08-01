@@ -135,7 +135,8 @@ class Combined(object):
 
         return _realize()
 
-    def _complete_args(self):
+    @property
+    def tracking(self):
         all_args = chain.from_iterable(map(lambda x: x.tracking, self._rparts))
         # Set doesn't guarantee sort order, so we use this hack.
         args = list()
@@ -153,7 +154,7 @@ class Combined(object):
 
     def _call_all(self, *args, **kwargs):
         return self._call_all_with(_name_args(
-                                   self._complete_args(),
+                                   self.tracking,
                                    args,
                                    kwargs))
 
