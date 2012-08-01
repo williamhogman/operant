@@ -3,8 +3,10 @@ from __future__ import (with_statement, print_function,
                         division, absolute_import)
 import random
 import time
+import collections
 
 from itertools import chain
+
 
 __all__ = ["Combined", "FixedRatio",
            "VariableRatio", "FixedInterval",
@@ -96,6 +98,9 @@ class Combined(object):
     def __init__(self, parts, *args):
         if len(args):
             parts = chain((parts, ), args)
+        elif not isinstance(parts, collections.Iterable):
+            parts = (parts,)
+
         self._parts = parts
 
     def __iter__(self):
