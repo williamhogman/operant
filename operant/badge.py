@@ -13,25 +13,27 @@ class BadgePrototype(object):
     def _precondition(self, user):
         return True
 
-    def _check_preconditions(self, user):
-        if user.operant_ds().has_attribute(self._get_ds_name()):
-            return False
-
+    def check_preconditions(self, user):
         return self._precondition(user)
 
     def _get_ds_name(self):
         return ("operant.badge", self.badge_id)
 
-    def _add_badge_to_user(self, user):
-        ds = user.operant_ds()
-        ds.add_attribute(self._get_ds_name())
-        ds.log("badge.awarded", self.badge_id)
-        return True
+    def _add_badge_to_user(self, store, user, callback):
 
-    def award(self, user):
+        def cb(success):
+            if success:
+                store.track_event(
+                    ("badge", "awarded", self._badge_id),
+                    user)
+            callback(success)
+
+        store.add_badge(user, self, cb)
+
+    def award(self, store, user):
         """Awards a badge to a user"""
-        if self._check_preconditions(user):
-            return self._add_badge_to_user(user)
+        if self._check_preconditions(store, user):
+            return self._add_badge_to_user(store, user)
         else:
             return False
 
