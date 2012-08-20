@@ -1,6 +1,6 @@
 import zope.interface as interface
 
-class IStorageProvider(Interface.Interface):
+class IStorageProvider(interface.Interface):
     """ Storage provider for operant"""
 
     def add_badge(self, user, badge, callback):
