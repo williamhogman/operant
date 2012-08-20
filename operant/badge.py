@@ -13,7 +13,7 @@ class BadgePrototype(object):
     def _precondition(self, user):
         return True
 
-    def check_preconditions(self, user):
+    def _check_preconditions(self, user):
         return self._precondition(user)
 
     def _get_ds_name(self):
@@ -23,19 +23,18 @@ class BadgePrototype(object):
 
         def cb(success):
             if success:
-                store.track_event(
-                    ("badge", "awarded", self._badge_id),
-                    user)
+                store.track_event("badge.awarded." + self.badge_id, user)
+                                  
             callback(success)
 
         store.add_badge(user, self, cb)
 
-    def award(self, store, user):
+    def award(self, store, user, callback):
         """Awards a badge to a user"""
-        if self._check_preconditions(store, user):
-            return self._add_badge_to_user(store, user)
+        if self._check_preconditions(user):
+            self._add_badge_to_user(store, user, callback)
         else:
-            return False
+            callback(False)
 
 
 class Badges(object):

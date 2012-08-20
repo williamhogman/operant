@@ -8,48 +8,47 @@ from nose.tools import ok_,eq_,raises
 
 from operant.badge import BadgePrototype,get_badge,register_badge
 
-def user_with_ds(ds):
-    user = Mock()
-    user.operant_ds.return_value = ds
-    return user
+def dprovider():
+    return Mock()
 
 def test_no_dupes():
-    ds = Mock()
-    ds.has_attribute.return_value = True
-    user = user_with_ds(ds)
+    ds = dprovider()
+    ds.add_badge.side_effect = lambda user, badge, cb: cb(False)
+
+    user = Mock()
+    user.operant_id = 1010
 
     badge_id = "test.testbadge1"
     badge = BadgePrototype(badge_id)
     
-    eq_(badge.award(user),False,
-        "awarding a badge to a user who already has one should return false")
+    callback = Mock()
+    badge.award(ds, user, callback)
 
-    # Checking should be done
-    ds.has_attribute.assert_called_once_with(("operant.badge",badge_id))
-    # but add_attribute shouldn't be called
-    eq_(len(ds.add_attribute.mock_calls),0)
-    # nor should it be logged
-    eq_(len(ds.log.mock_calls),0)
+    callback.assert_called_once_with(False)
+
+    # not added to logs
+    eq_(len(ds.track_event.mock_calls),0)
 
 def test_award():
     ds = Mock()
-    ds.has_attribute.return_value = False
-    user = user_with_ds(ds)
-
+    ds.add_badge.side_effect = lambda user, badge, cb: cb(True)
 
     badge_id = "test.testbadge2"
     badge = BadgePrototype(badge_id)
 
-    rtn = badge.award(user)
-    ok_(rtn)
+    callback = Mock()
+
+    user = Mock()
+    user.operant_id = 1010
+
+    badge.award(ds, user, callback)
+    
+    callback.assert_called_once_with(True)
 
     dbname = ("operant.badge",badge_id)
-    # We should check before we add
-    ds.has_attribute.assert_called_once_with(dbname)
-    # and after that we should add it
-    ds.add_attribute.assert_called_once_with(dbname)
 
-    ds.log.assert_called_once_with("badge.awarded",badge_id)
+    ds.track_event.assert_called_once_with('badge.awarded.test.testbadge2',user)
+
 
 @raises(RuntimeError)
 def test_register_existing_badge():
