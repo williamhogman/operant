@@ -27,7 +27,7 @@ class BadgePrototype(object):
                                   
             callback(success)
 
-        store.add_badge(user, self, cb)
+        store.add_badge(user.operant_id(), self, cb)
 
     def award(self, store, user, callback):
         """Awards a badge to a user"""
