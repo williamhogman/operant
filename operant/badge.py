@@ -23,9 +23,10 @@ class BadgePrototype(object):
 
         def cb(success):
             if success:
-                store.track_event("badge.awarded." + self.badge_id, user)
-                                  
-            callback(success)
+                store.track_event("badge.awarded." + self.badge_id,
+                                  user.operant_id())
+                callback(self)
+            callback(False)
 
         store.add_badge(user.operant_id(), self, cb)
 
