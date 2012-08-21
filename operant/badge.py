@@ -26,9 +26,13 @@ class BadgePrototype(object):
                 store.track_event("badge.awarded." + self.badge_id,
                                   user.operant_id())
                 callback(self)
-            callback(False)
-
-        store.add_badge(user.operant_id(), self, cb)
+            else:
+                callback(False)
+        if hasattr(user, "operant_id"):
+            user_id = user.operant_id()
+        else:
+            user_id = user
+        store.add_badge(user_id, self, cb)
 
     def award(self, store, user, callback):
         """Awards a badge to a user"""

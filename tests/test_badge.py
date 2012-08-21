@@ -16,7 +16,7 @@ def test_no_dupes():
     ds.add_badge.side_effect = lambda user, badge, cb: cb(False)
 
     user = Mock()
-    user.operant_id = 1010
+    user.operant_id.return_value = 1010
 
     badge_id = "test.testbadge1"
     badge = BadgePrototype(badge_id)
@@ -39,15 +39,15 @@ def test_award():
     callback = Mock()
 
     user = Mock()
-    user.operant_id = 1010
+    user.operant_id.return_value = 1010
 
     badge.award(ds, user, callback)
     
-    callback.assert_called_once_with(True)
+    callback.assert_called_once_with(badge)
 
     dbname = ("operant.badge",badge_id)
 
-    ds.track_event.assert_called_once_with('badge.awarded.test.testbadge2',user)
+    ds.track_event.assert_called_once_with('badge.awarded.test.testbadge2',1010)
 
 
 @raises(RuntimeError)
