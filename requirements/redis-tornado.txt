@@ -1,0 +1,2 @@
+tornado>=2.3
+tornado-redis>=0.0.5

@@ -1,3 +1,4 @@
 -r base.txt
 -r redis-py.txt
+-r redis-tornado.txt
 -r test.txt
