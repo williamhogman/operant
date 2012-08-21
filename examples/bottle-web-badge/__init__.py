@@ -1,0 +1,1 @@
+"""Badges example website"""
