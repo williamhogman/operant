@@ -8,7 +8,7 @@ from operant.storage.plain_redis import Redis
 
 # Register the badges you wanna use in your application
 # This can be done in a config file
-badge.register_badge(badge.BadgePrototype("testbadge1"))
+badge.register_badge("testbadge1")
 
 # Setup datastore, we're gonna use redis here...
 ds = Redis({"host": "localhost"})

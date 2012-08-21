@@ -2,7 +2,11 @@
 """
 from __future__ import (with_statement, print_function,
                         division, absolute_import)
-
+try:
+    string_types = basestring
+except NameError:
+    # Python 3.x
+    string_types = str
 
 class BadgePrototype(object):
     """A prototype that builds a badge"""
@@ -49,6 +53,8 @@ class Badges(object):
     @classmethod
     def register(cls, badge):
         """Registers a badge with the badges collection"""
+        if isinstance(badge, string_types):
+            badge = BadgePrototype(badge)
         if badge.badge_id in cls._badges:
             raise RuntimeError("A badge with the id {0} "
                                "has already been registered"
