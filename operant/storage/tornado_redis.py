@@ -1,5 +1,3 @@
-import json
-
 import zope.interface as interface
 
 try:

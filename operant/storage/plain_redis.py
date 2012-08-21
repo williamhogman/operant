@@ -1,6 +1,4 @@
 """Module for plain redis support"""
-import json
-
 import zope.interface as interface
 
 try:
@@ -23,9 +21,7 @@ class Redis(RedisCommon):
 
     def add_badge(self, user, badge, callback):
         key = mkname("badges", user_id(user))
-
         success = self.client.sadd(key, badge.badge_id) == 1
-
         callback(success)
 
     def _add_to_ev(self, data, subject):
@@ -34,8 +30,8 @@ class Redis(RedisCommon):
 
         pipe = self.client.pipeline()
 
-        pipe.lpush(gkey, s)
-        pipe.lpush(pkey, s)
+        pipe.lpush(gkey, data)
+        pipe.lpush(pkey, data)
 
         pipe.execute()
 

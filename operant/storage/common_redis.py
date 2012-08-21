@@ -4,6 +4,8 @@ try:
 except ImportError:
     Integral = [int, long]
 
+import json
+
 
 def mkname(*args):
     return ":".join(args)
