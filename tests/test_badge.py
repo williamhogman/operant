@@ -20,7 +20,7 @@ def test_no_dupes():
 
     badge_id = "test.testbadge1"
     badge = BadgePrototype(badge_id)
-    
+
     callback = Mock()
     badge.award(ds, user, callback)
 
@@ -42,13 +42,9 @@ def test_award():
     user.operant_id.return_value = 1010
 
     badge.award(ds, user, callback)
-    
     callback.assert_called_once_with(badge)
 
-    dbname = ("operant.badge",badge_id)
-
     ds.track_event.assert_called_once_with('badge.awarded.test.testbadge2',1010)
-
 
 @raises(RuntimeError)
 def test_register_existing_badge():

@@ -29,10 +29,7 @@ class BadgePrototype(object):
                 callback(self)
             else:
                 callback(False)
-        if hasattr(user, "operant_id"):
-            user_id = user.operant_id()
-        else:
-            user_id = user
+        user_id = user.operant_id()
         store.add_badge(user_id, self, cb)
 
     def award(self, store, user, callback):
