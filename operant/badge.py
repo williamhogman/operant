@@ -20,9 +20,6 @@ class BadgePrototype(object):
     def _check_preconditions(self, user):
         return self._precondition(user)
 
-    def _get_ds_name(self):
-        return ("operant.badge", self.badge_id)
-
     def _add_badge_to_user(self, store, user, callback):
 
         def cb(success):
