@@ -31,7 +31,7 @@ class Registry(object):
         self.set_handler(string_types, fn)
 
     def _parse_with_handlers(self, obj):
-        fns = [x for tps, fn in self._spec if isinstance(obj, tps)]
+        fns = [fn for tps, fn in self._spec if isinstance(obj, tps)]
         out = obj
         for fn in fns:
             out = fn(obj)
