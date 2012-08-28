@@ -2,11 +2,8 @@
 """
 from __future__ import (with_statement, print_function,
                         division, absolute_import)
-try:
-    string_types = basestring
-except NameError:
-    # Python 3.x
-    string_types = str
+from operant.base import Registry
+
 
 class BadgePrototype(object):
     """A prototype that builds a badge"""
@@ -40,25 +37,8 @@ class BadgePrototype(object):
             callback(False)
 
 
-class Badges(object):
-    """Class holding every registered badge in the system"""
-    _badges = {}
-
-    @classmethod
-    def register(cls, badge):
-        """Registers a badge with the badges collection"""
-        if isinstance(badge, string_types):
-            badge = BadgePrototype(badge)
-        if badge.badge_id in cls._badges:
-            raise RuntimeError("A badge with the id {0} "
-                               "has already been registered"
-                               .format(badge.badge_id))
-        cls._badges[badge.badge_id] = badge
-
-    @classmethod
-    def get(cls, badge_id):
-        """Gets a named badge from the badge collection"""
-        return cls._badges.get(badge_id, None)
+Badges = Registry("badge", "badge_id")
+Badges.set_str_handler(BadgePrototype)
 
 get_badge = Badges.get
 register_badge = Badges.register
