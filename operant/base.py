@@ -6,9 +6,14 @@ except NameError:
     # Python 3.x
     string_types = str
 
+
 class Registry(object):
-    
-    def __init__(self,kind, name_prop):
+    """Class providing a collection of named objects.
+
+       Components use which components use to register objects to
+       indentifiers and provide smart regisration functions"""
+
+    def __init__(self, kind, name_prop):
         self._kind = kind
         self._name_prop = name_prop
         self._spec = list()
@@ -33,6 +38,7 @@ class Registry(object):
         return out
 
     def register(self, toreg):
+        """Registers an object to the registry"""
         toreg = self._parse_with_handlers(toreg)
         if self._np_of(toreg) in self._classes:
             raise RuntimeError("A {0} with the id {1} "
