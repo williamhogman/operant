@@ -1,8 +1,8 @@
 """Tests for the redis"""
 try:
-    from mock import Mock,patch,ANY, sentinel
+    from mock import Mock,patch,ANY, sentinel, call
 except ImportError:
-    from unittest.mock import Mock,patch,ANY, sentinel
+    from unittest.mock import Mock,patch,ANY, sentinel, call
 
 from nose.tools import ok_, eq_, raises
 from nose.plugins.skip import SkipTest
@@ -34,6 +34,7 @@ def mock_points(name="TestPoints"):
     return m
 
 class CommonTests(object):
+
     def test_ctor(self):
         with patch(self.client_class) as p:
             # This should result in the constructor being called with
@@ -41,8 +42,29 @@ class CommonTests(object):
             self.mocked_provider({"test": "foo"})
             p.assert_called_once_with(test="foo")
 
+    def test_track_events(self):
+
+        pipe = Mock()
+        pipe.lpush.return_value = 1
+        pipe.lpush.side_effect = lambda l, i, callback=None: callback and callback()
+        cli = Mock()
+        cli.pipeline.return_value = pipe
+
+        ds = self.mocked_provider(cli)
+        ds.track_event("test_ev", 1010, {"ext": "bar"})
+
+        pipe.lpush.assert_has_calls([
+                call("events", ANY),
+                call("events:1010", ANY)
+            ])
+        pipe.execute.assert_called()
+
 class TestRedis(CommonTests):
     client_class = "redis.StrictRedis"
+
+    def setup(self):
+        if missing_redis:
+            raise SkipTest
 
     def mocked_provider(self, mock):
         if missing_redis:
@@ -98,6 +120,10 @@ class TestRedis(CommonTests):
 
 class TestTornadoRedis(CommonTests):
     client_class = "tornadoredis.Client"
+
+    def setup(self):
+        if missing_tornado:
+            raise SkipTest
 
     def mocked_provider(self, mock):
         if missing_tornado:
