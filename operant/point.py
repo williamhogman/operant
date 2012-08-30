@@ -28,7 +28,7 @@ class PointSystem(object):
         def _cb(now):
             self.on_awarded_points(user, now, amount)
             callback(now)
-        store.add_points(user.operant_id(), self.points_id, amount, _cb)
+        store.add_points(user.operant_id(), self, amount, _cb)
 
     def award(self, store, user, amount=1, callback=None):
         """Awards a number of points to a player"""
@@ -40,3 +40,6 @@ class PointSystem(object):
 
 PointSystems = Registry("point system", "points_id")
 PointSystems.set_str_handler(PointSystem)
+
+get = PointSystems.get
+register = PointSystems.register
