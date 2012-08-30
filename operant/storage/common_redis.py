@@ -45,4 +45,4 @@ class RedisCommon(object):
     def add_points(self, user, points, count, callback):
         self._counter_add(user,
                           mkname("points", points.points_id),
-                          amount, callback)
+                          count, callback=callback)

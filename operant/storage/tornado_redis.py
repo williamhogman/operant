@@ -31,12 +31,12 @@ class TornadoRedis(RedisCommon):
         pipe = self.client.pipeline()
         pipe.lpush(gkey, data)
         pipe.lpush(pkey, data)
-        pipe.execute()
+        pipe.execute(callback=lambda x: None)
 
     def _counter_add(self, user, counter, amount, callback):
         hash_name = mkname("counter", user_id(user))
-        res = self.client.hincrby(hash_name, counter,
-                                  amount, callback=callback)
+        self.client.hincrby(hash_name, counter,
+                            amount=amount, callback=callback)
 
     def _counter_get(self, user, counter, amount, callback):
         def parse(res):
@@ -50,4 +50,4 @@ class TornadoRedis(RedisCommon):
             else:
                 callback(res)
         hash_name = mkname("counter", user_id(user))
-        self.client.hget(hash_name, counter, amount, callback=parse)
+        self.client.hget(hash_name, counter, callback=parse)
