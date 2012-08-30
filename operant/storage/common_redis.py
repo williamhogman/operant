@@ -34,10 +34,7 @@ class RedisCommon(object):
                           amount, callback)
 
     def track_event(self, event, subject=None, ext={}):
-        if ext:
-            body = (event, subject, ext)
-        else:
-            body = (event, subject)
+        body = (event, subject, ext)
 
         data = json.dumps(body)
         self._add_to_ev(data, subject)
