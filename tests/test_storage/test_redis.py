@@ -1,8 +1,8 @@
 """Tests for the redis"""
 try:
-    from mock import Mock,patch,ANY
+    from mock import Mock,patch,ANY, sentinel
 except ImportError:
-    from unittest.mock import Mock,patch,ANY
+    from unittest.mock import Mock,patch,ANY, sentinel
 
 from nose.tools import ok_, eq_, raises
 from nose.plugins.skip import SkipTest
@@ -28,7 +28,22 @@ def mock_badge(name="TestBadge"):
     m.badge_id = name
     return m
 
-class TestRedis(object):
+def mock_points(name="TestPoints"):
+    m = Mock()
+    m.points_id = name
+    return m
+
+class CommonTests(object):
+    def test_ctor(self):
+        with patch(self.client_class) as p:
+            # This should result in the constructor being called with
+            # a dict.
+            self.mocked_provider({"test": "foo"})
+            p.assert_called_once_with(test="foo")
+
+class TestRedis(CommonTests):
+    client_class = "redis.StrictRedis"
+
     def mocked_provider(self, mock):
         if missing_redis:
             raise SkipTest
@@ -45,8 +60,7 @@ class TestRedis(object):
 
         cli.add_badge(1010, badge, callback)
 
-        mck.sadd.assert_called_once_with("badges:1010","TestBadge")
-    
+        mck.sadd.assert_called_once_with("badges:1010", "TestBadge")
         callback.assert_called_once_with(True)
 
     def test_add_badge_existing(self):
@@ -58,12 +72,32 @@ class TestRedis(object):
 
         callback = Mock()
         cli.add_badge(1010, badge, callback)
-        
+
         mck.sadd.assert_called_once_with("badges:1010", "TestBadge")
 
         callback.assert_called_once_with(False)
 
-class TestTornadoRedis(object):
+    def test_add_points(self):
+        mck = Mock()
+        mck.hincrby.return_value = 10
+
+        cli = self.mocked_provider(mck)
+
+        points = mock_points()
+
+        callback = Mock()
+
+        cli.add_points(1010, points, 1, callback)
+
+        mck.hincrby.assert_called_once("counter:1010",
+                                       "points:TestPoints",
+                                       1)
+        callback.assert_called_once_with(10)
+
+
+
+class TestTornadoRedis(CommonTests):
+    client_class = "tornadoredis.Client"
 
     def mocked_provider(self, mock):
         if missing_tornado:
@@ -80,8 +114,10 @@ class TestTornadoRedis(object):
         callback = Mock()
         cli.add_badge(1010, badge, callback)
 
-        mck.sadd.assert_called_once_with("badges:1010", "TestBadge", callback=ANY)
-        
+        mck.sadd.assert_called_once_with("badges:1010",
+                                         "TestBadge",
+                                         callback=ANY)
+
         callback.assert_called_once_with(True)
 
     def test_add_badge_existing(self):
@@ -94,6 +130,29 @@ class TestTornadoRedis(object):
         callback = Mock()
         cli.add_badge(1010, badge, callback)
 
-        mck.sadd.assert_called_once_with("badges:1010", "TestBadge", callback=ANY)
-        
+        mck.sadd.assert_called_once_with("badges:1010",
+                                         "TestBadge",
+                                         callback=ANY)
         callback.assert_called_once_with(False)
+
+    def test_add_points(self):
+
+        def _hincrby(key, item, amount, callback=None):
+            callback(10)
+
+        mck = Mock()
+        mck.hincrby.side_effect = _hincrby
+
+        cli = self.mocked_provider(mck)
+
+        points = mock_points()
+
+        callback = Mock()
+
+        cli.add_points(1010, points, 1, callback)
+
+        mck.hincrby.assert_called_once("counter:1010",
+                                       "points:TestPoints",
+                                       1,
+                                       callback=ANY)
+        callback.assert_called_once_with(10)
