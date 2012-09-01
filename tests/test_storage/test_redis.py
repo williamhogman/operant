@@ -1,9 +1,6 @@
 """Tests for the redis"""
-try:
-    from mock import Mock,patch,ANY, sentinel, call
-except ImportError:
-    from unittest.mock import Mock,patch,ANY, sentinel, call
 
+from mock import Mock,patch,ANY, sentinel, call
 from nose.tools import ok_, eq_, raises
 from nose.plugins.skip import SkipTest
 import six

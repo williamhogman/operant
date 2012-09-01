@@ -1,8 +1,4 @@
-try:
-    from mock import Mock, patch, ANY, sentinel
-except ImportError:
-    from unittest.mock import Mock, patch, ANY, sentinel
-
+from mock import Mock, patch, ANY, sentinel
 from nose.tools import ok_, eq_, raises
 
 from operant.base import Registry

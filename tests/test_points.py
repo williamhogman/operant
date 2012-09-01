@@ -1,8 +1,5 @@
 """Tests for the points system"""
-try:
-    from mock import Mock, patch, ANY
-except ImportError:
-    from unittest.mock import Mock, patch, ANY
+from mock import Mock, patch, ANY
 
 from nose.tools import ok_, eq_, raises
 

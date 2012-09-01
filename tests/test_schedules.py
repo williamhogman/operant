@@ -1,8 +1,5 @@
 """Tests for schedules"""
-try:
-    from unittest.mock import Mock, patch, ANY, sentinel
-except ImportError:
-    from mock import Mock, patch, ANY, sentinel
+from mock import Mock, patch, ANY, sentinel
 
 from nose.tools import ok_, eq_, raises
 import collections
