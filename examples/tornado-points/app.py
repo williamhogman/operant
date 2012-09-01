@@ -21,8 +21,15 @@ class User(object):
         return int(hashlib.md5(self.name).hexdigest(), 16)
 
 class Index(web.RequestHandler):
+    @web.asynchronous
+    @gen.engine
     def get(self):
         self.write("<a href='/gimme-points'>Gimme XP!</a>")
+        user = User(self.get_argument("user", "anon"))
+        pts = point.get("experience")
+        res = yield gen.Task(pts.get_count, ds, user)
+        self.write("<p>You currently have {0} XP</p>".format(res))
+        self.finish()
 
 
 class Points(web.RequestHandler):
