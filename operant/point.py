@@ -38,6 +38,12 @@ class PointSystem(object):
             callback(n)
         self._add_points_to_user(store, user, amount, _cb)
 
+    def get_count(self, store, user, callback=None):
+        """Gets the number of points a player has"""
+        def _foo(x):
+            callback(x)
+        store.get_points(user.operant_id(), self, _foo)
+
 PointSystems = Registry("point system", "points_id")
 PointSystems.set_str_handler(PointSystem)
 

@@ -38,7 +38,7 @@ class TornadoRedis(RedisCommon):
         self.client.hincrby(hash_name, counter,
                             amount=amount, callback=callback)
 
-    def _counter_get(self, user, counter, amount, callback):
+    def _counter_get(self, user, counter, callback):
         def parse(res):
             if isinstance(res, basestring):
                 try:

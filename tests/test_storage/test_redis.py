@@ -116,7 +116,18 @@ class TestRedis(CommonTests):
                                        1)
         callback.assert_called_once_with(10)
 
+    def test_get_points(self):
+        mck = Mock()
+        mck.hget.return_value = 10
 
+        cli = self.mocked_provider(mck)
+
+        points = mock_points()
+
+        callback = Mock()
+        cli.get_points(1010, points, callback)
+
+        callback.assert_called_once_with(10)
 
 class TestTornadoRedis(CommonTests):
     client_class = "tornadoredis.Client"
@@ -181,4 +192,19 @@ class TestTornadoRedis(CommonTests):
                                        "points:TestPoints",
                                        1,
                                        callback=ANY)
+        callback.assert_called_once_with(10)
+
+    def test_get_points(self):
+        def _hget(k, i, callback=None):
+            callback(10)
+        mck = Mock()
+        mck.hget.side_effect = _hget
+
+        cli = self.mocked_provider(mck)
+
+        points = mock_points()
+
+        callback = Mock()
+        cli.get_points(1010, points, callback)
+
         callback.assert_called_once_with(10)

@@ -39,6 +39,11 @@ class RedisCommon(object):
         data = json.dumps(body)
         self._add_to_ev(data, subject)
 
+    def get_points(self, user, points, callback):
+        self._counter_get(user,
+                          mkname("points", points.points_id),
+                          callback=callback)
+
     def add_points(self, user, points, count, callback):
         self._counter_add(user,
                           mkname("points", points.points_id),

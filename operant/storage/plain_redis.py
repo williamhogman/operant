@@ -45,10 +45,10 @@ class Redis(RedisCommon):
 
         callback(res)
 
-    def _counter_get(self, user, counter, amount, callback):
+    def _counter_get(self, user, counter, callback):
         hash_name = mkname("counter", user_id(user))
 
-        res = self.client.hget(hash_name, counter, amount)
+        res = self.client.hget(hash_name, counter)
 
         if isinstance(res, basestring):
             try:
