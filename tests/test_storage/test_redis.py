@@ -6,6 +6,7 @@ except ImportError:
 
 from nose.tools import ok_, eq_, raises
 from nose.plugins.skip import SkipTest
+import six
 
 import functools
 import inspect
@@ -23,6 +24,8 @@ try:
 except ImportError:
     missing_tornado = True
 
+import operant.storage.common_redis as common_redis
+
 def mock_badge(name="TestBadge"):
     m = Mock()
     m.badge_id = name
@@ -32,6 +35,13 @@ def mock_points(name="TestPoints"):
     m = Mock()
     m.points_id = name
     return m
+
+def test_redis_user_id_conv():
+    ret = common_redis.user_id("foo")
+    ok_(isinstance(ret, six.string_types))
+
+    ret = common_redis.user_id(1010)
+    ok_(isinstance(ret, six.string_types))
 
 class CommonTests(object):
 
@@ -58,6 +68,36 @@ class CommonTests(object):
                 call("events:1010", ANY)
             ])
         pipe.execute.assert_called()
+
+    def test_get_points_none(self):
+        # aka not found
+        cli = self.mocked_provider(self._hget_mck(None))
+
+        points = mock_points()
+
+        callback = Mock()
+        cli.get_points(1010, points, callback)
+
+        callback.assert_called_once_with(0)
+
+    def test_get_points_str_int(self):
+        cli = self.mocked_provider(self._hget_mck("12"))
+
+        points = mock_points()
+        callback = Mock()
+        cli.get_points(1010, points, callback)
+
+        callback.assert_called_once_with(12)
+
+    def test_get_points_str_float(self):
+        cli = self.mocked_provider(self._hget_mck("13.37"))
+
+        points = mock_points()
+        callback = Mock()
+        cli.get_points(1010, points, callback)
+
+        callback.assert_called_once_with(13.37)
+
 
 class TestRedis(CommonTests):
     client_class = "redis.StrictRedis"
@@ -116,11 +156,13 @@ class TestRedis(CommonTests):
                                        1)
         callback.assert_called_once_with(10)
 
-    def test_get_points(self):
+    def _hget_mck(self, ret=10):
         mck = Mock()
-        mck.hget.return_value = 10
+        mck.hget.return_value = ret
+        return mck
 
-        cli = self.mocked_provider(mck)
+    def test_get_points(self):
+        cli = self.mocked_provider(self._hget_mck())
 
         points = mock_points()
 
@@ -194,13 +236,15 @@ class TestTornadoRedis(CommonTests):
                                        callback=ANY)
         callback.assert_called_once_with(10)
 
-    def test_get_points(self):
+    def _hget_mck(self, ret=10):
         def _hget(k, i, callback=None):
-            callback(10)
+            callback(ret)
         mck = Mock()
         mck.hget.side_effect = _hget
+        return mck
 
-        cli = self.mocked_provider(mck)
+    def test_get_points(self):
+        cli = self.mocked_provider(self._hget_mck())
 
         points = mock_points()
 
