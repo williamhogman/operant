@@ -46,13 +46,29 @@ def test_award():
 
     ds.track_event.assert_called_once_with('badge.awarded.test.testbadge2',1010)
 
+def test_award_fail_precond():
+    ds = Mock()
+
+    badge_id = "test.testbadge2"
+    badge = BadgePrototype(badge_id)
+    badge._precondition = Mock(return_value=False)
+
+    user = Mock()
+    user.operant_id.return_value = 1010
+
+    callback = Mock()
+
+    badge.award(ds, user, callback)
+    badge._precondition.assert_called_once()
+    callback.assert_called_once_with(False)
+
 @raises(RuntimeError)
 def test_register_existing_badge():
     b = BadgePrototype("test.testbadge3")
     register_badge(b)
 
     b2 = BadgePrototype("test.testbadge3")
-    
+
     register_badge(b2)
 
 def test_register_badge():
