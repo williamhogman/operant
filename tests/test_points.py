@@ -36,6 +36,18 @@ class TestAward(object):
 
         cb.assert_called_once_with(9)
 
+    def test_get(self):
+        ds = Mock()
+        ds.get_points.side_effect = lambda a, b, callback: callback(10)
+
+        points_id = "test.testpoint"
+        point = PointSystem(points_id)
+
+        cb = Mock()
+        point.get_count(ds, _m_user(), cb)
+
+        cb.assert_called_once_with(10)
+
     def test_on_awarded_hook(self):
         ds = self._ds_add_points(5)
 
