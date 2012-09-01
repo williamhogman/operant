@@ -1,9 +1,5 @@
 """Functions common to all our redis storage implementations"""
-try:
-    from numbers import Integral
-except ImportError:
-    Integral = [int, long]
-
+from six import integer_types
 import json
 
 
@@ -12,7 +8,7 @@ def mkname(*args):
 
 
 def user_id(id_):
-    if isinstance(id_, Integral):
+    if isinstance(id_, integer_types):
         return str(id_)
     else:
         return id_
