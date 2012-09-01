@@ -1,5 +1,4 @@
 """Module for plain redis support"""
-import sys
 import zope.interface as interface
 
 try:
@@ -11,8 +10,7 @@ except ImportError:
 import operant.data
 from operant.storage.common_redis import mkname, user_id, RedisCommon
 
-if sys.version_info[0] == 3:
-    basestring = str
+from six import string_types
 
 @interface.implementer(operant.data.IStorageProvider)
 class Redis(RedisCommon):
@@ -50,7 +48,7 @@ class Redis(RedisCommon):
 
         res = self.client.hget(hash_name, counter)
 
-        if isinstance(res, basestring):
+        if isinstance(res, string_types):
             try:
                 callback(int(res))
             except ValueError:

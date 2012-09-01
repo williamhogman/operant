@@ -1,11 +1,6 @@
 """ Bases shared by the different gamification components"""
 
-try:
-    string_types = basestring
-except NameError:
-    # Python 3.x
-    string_types = str
-
+from six import string_types
 
 class Registry(object):
     """Class providing a collection of named objects.
