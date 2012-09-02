@@ -28,7 +28,7 @@ class TestAward(object):
         cb = Mock()
         point.award(ds, _m_user(), 1, cb)
 
-        ds.award_points.called_once_with(1010, "test.testpoint", cb)
+        ds.add_points.assert_called_once_with(1010, point, 1, ANY)
         ds.track_event.assert_called_once()
 
         cb.assert_called_once_with(9)
