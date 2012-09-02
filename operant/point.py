@@ -7,6 +7,7 @@ from __future__ import (with_statement, print_function,
                         division, absolute_import)
 from operant.base import Registry
 
+
 class PointSystem(object):
     """A prototype for a point system.
 

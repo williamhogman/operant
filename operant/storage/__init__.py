@@ -1,1 +1,1 @@
-"""Various support for various storage backends"""
+"""Support moduldes for various storage backends"""

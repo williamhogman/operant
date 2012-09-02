@@ -10,6 +10,7 @@ from __future__ import (with_statement, print_function,
                         division, absolute_import)
 from operant.base import Registry
 
+
 class Currency(object):
     """An instance of this class represents currency"""
 

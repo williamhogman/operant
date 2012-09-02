@@ -12,6 +12,7 @@ from operant.storage.common_redis import mkname, user_id, RedisCommon
 
 from six import string_types
 
+
 @interface.implementer(operant.data.IStorageProvider)
 class Redis(RedisCommon):
 

@@ -17,7 +17,7 @@ class User(object):
     """ Fake user class implementation """
     def __init__(self, name):
         self.name = name
-        
+
     def operant_id(self):
         return int(hashlib.md5(self.name).hexdigest(), 16)
 
