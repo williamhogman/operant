@@ -94,7 +94,6 @@ class CommonTests(object):
         self._aoc(mck.sadd, "badges:1010", "TestBadge")
         callback.assert_called_once_with(False)
 
-
     def test_get_points_none(self):
         # aka not found
         cli = self.mocked_provider(self._hget_mck(None))
@@ -167,6 +166,16 @@ class CommonTests(object):
         self._aoc(mck.hincrby, "counter:1010", "currency:TestCurrency", 5)
         callback.assert_called_once_with(10)
 
+    def test_deduct_balance(self):
+        mck = self._hincrby_mck()
+        cli = self.mocked_provider(mck)
+
+        currency = mock_currency()
+        callback = Mock()
+
+        cli.deduct_balance(1010, currency, 5, callback)
+        self._aoc(mck.hincrby, "counter:1010", "currency:TestCurrency", -5)
+        callback.assert_called_once_with(10)
 
 class TestRedis(CommonTests):
     client_class = "redis.StrictRedis"
