@@ -27,7 +27,7 @@ class RedisCommon(object):
     def get_balance(self, user, currency, callback):
         self._counter_get(user,
                           mkname("currency", currency.currency_id),
-                          amount, callback)
+                          callback)
 
     def track_event(self, event, subject=None, ext={}):
         body = (event, subject, ext)

@@ -36,7 +36,7 @@ class TornadoRedis(RedisCommon):
     def _counter_add(self, user, counter, amount, callback):
         hash_name = mkname("counter", user_id(user))
         self.client.hincrby(hash_name, counter,
-                            amount=amount, callback=callback)
+                            amount, callback=callback)
 
     def _counter_get(self, user, counter, callback):
         def parse(res):
