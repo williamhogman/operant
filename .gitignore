@@ -1,5 +1,22 @@
 virtualenv
 
+.*
+!.gitignore
+*~
+
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list
+tramp
+.\#*
+
+# Org-mode
+.org-id-locations
+*_archive
+
 ## Python from gitignore repo
 *.py[cod]
 
