@@ -43,6 +43,6 @@ class Currency(object):
         store.get_balance(user.operant_id(), self, callback)
 
 Currencies = Registry("currency", "currency_id")
-
+Currencies.set_str_handler(Currency)
 get = Currencies.get
 register = Currencies.register
