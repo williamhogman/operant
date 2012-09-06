@@ -24,8 +24,8 @@ class MongoDS(MongoBase):
                                               **kwargs)
         callback(res)
 
-    def _find_user(user, parts, callback=None):
-        res = self._users_col.find(dict(_id=user),
+    def _find_user(self, user, parts, callback=None):
+        res = self._users_col.find(user,
                                    parts)
         callback(res)
 

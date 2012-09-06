@@ -26,6 +26,12 @@ def _extract_field(names, obj):
         cur = cur.get(name)
     return cur
 
+def _extract_currency(currency, obj):
+    return _extract_field((
+        "counters",
+        "currency_" + currency.currency_id),
+        obj)
+
 
 class MongoBase(object):
     """Base class for mongodb drivers"""
@@ -55,18 +61,14 @@ class MongoBase(object):
                           {key: 1},
                           callback=callback)
 
-    def _counter_get(self, user, key, callback):
+    def _counter_get(self, user, key, callback=None):
         self._find_user({"_id": user},
                         {key: 1},
                         callback=callback)
 
     def add_balance(self, user, currency, amount, callback):
         def _parse(obj):
-            res = _extract_field((
-                "counters",
-                "currency_" + currency.currency_id),
-                obj)
-
+            res = _extract_currency(currency, obj)
             callback(res)
 
         self._counter_add(user, currency_name(currency),
@@ -76,7 +78,10 @@ class MongoBase(object):
         self.add_balance(user, currency, -amount, callback)
 
     def get_balance(self, user, currency, callback):
-        self.get_balance(user, currency_name(currency), callback)
+        def _parse(obj):
+            res = _extract_currency(currency, obj)
+            callback(res)
+        self._counter_get(user, currency_name(currency), _parse)
 
     def add_points(self, user, points, count, callback):
         self._counter_add(user, points_name(points), count, callback)
