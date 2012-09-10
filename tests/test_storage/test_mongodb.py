@@ -200,6 +200,19 @@ class CommonTests(object):
                   fields={"badges": 1},
                   upsert=True, new=False)
 
+    def test_track_event(self):
+        mck = self._insert_mck()
+        db = _simplemock("operant", "operant_log", mck)
+        ds = self.mocked_provider(db)
+
+        ds.track_event("foo", 1010, {"bar": 1})
+
+        self._aoc(mck.insert, {'event': 'foo',
+                               'subject': 1010,
+                               "ext": dict(bar=1)},
+                               safe=False)
+
+
 class TestPlainMongodb(CommonTests):
     client_class = "pymongo.Connection"
 
@@ -212,6 +225,11 @@ class TestPlainMongodb(CommonTests):
     def _find_mod_mck(self, res):
         mck = Mock(name="col:find_and_modify")
         mck.find_and_modify.return_value = res
+        return mck
+
+    def _insert_mck(self):
+        mck = Mock()
+        mck.insert.return_value = None
         return mck
 
     def _find_mck(self, res):
