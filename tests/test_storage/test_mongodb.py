@@ -183,6 +183,22 @@ class CommonTests(object):
                   fields={"badges": 1},
                   upsert=True, new=False)
 
+    def test_add_badge_existing(self):
+        mck = self._find_mod_mck(_test_badge_mod_rtn(1010, "TestBadge"))
+        db = _simplemock("operant", "operant_users", mck)
+        ds = self.mocked_provider(db)
+
+        callback = Mock()
+
+        ds.add_badge(1010, mock_badge(), callback)
+
+        callback.assert_called_once(False)
+
+        self._aoc(mck.find_and_modify,
+                  {'_id': 1010},
+                  {'$addToSet': {'badges': "TestBadge"}},
+                  fields={"badges": 1},
+                  upsert=True, new=False)
 
 class TestPlainMongodb(CommonTests):
     client_class = "pymongo.Connection"
