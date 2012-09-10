@@ -46,14 +46,18 @@ class MongoBase(object):
 
     def _badge_add(self, user, badge, callback):
         def _parse(res):
-            if res is None:
+            # We get the old object and it not containing our badge
+            # implies that ours was added to the set.
+            badges = res.get("badges")
+            if badges and badge in badges:
                 callback(False)
             else:
                 callback(True)
 
-        res = self._update_user({"_id": user, "$not": {"badges": badge}},
+        res = self._update_user({"_id": user},
                                 {"$addToSet": {"badges": badge}},
-                                callback=_parse)
+                                {"badges": 1},
+                                callback=_parse, new=False)
 
     def _counter_add(self, user, key, amount, callback):
         self._update_user({"_id": user},
