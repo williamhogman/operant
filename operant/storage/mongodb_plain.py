@@ -29,5 +29,5 @@ class MongoDS(MongoBase):
                                    parts)
         callback(res)
 
-    def _insert_log(doc):
+    def _insert_log(self, doc):
         self._log_col.insert(doc, safe=False)
