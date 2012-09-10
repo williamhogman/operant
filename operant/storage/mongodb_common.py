@@ -17,7 +17,7 @@ def currency_name(currency):
 
 
 def points_name(points):
-    return counter_name("points", currency.currency_id)
+    return counter_name("points", points.points_id)
 
 
 def _extract_field(names, obj):
@@ -26,10 +26,18 @@ def _extract_field(names, obj):
         cur = cur.get(name)
     return cur
 
+
 def _extract_currency(currency, obj):
     return _extract_field((
         "counters",
         "currency_" + currency.currency_id),
+        obj)
+
+
+def _extract_points(points, obj):
+    return _extract_field((
+        "counters",
+        "points_" + points.points_id),
         obj)
 
 
@@ -88,7 +96,10 @@ class MongoBase(object):
         self._counter_get(user, currency_name(currency), _parse)
 
     def add_points(self, user, points, count, callback):
-        self._counter_add(user, points_name(points), count, callback)
+        def _parse(obj):
+            res = _extract_points(points, obj)
+            callback(res)
+        self._counter_add(user, points_name(points), count, _parse)
 
     def deduct_points(self, user, points, count, callback):
         self.add_points(user, points, -count, callback)
