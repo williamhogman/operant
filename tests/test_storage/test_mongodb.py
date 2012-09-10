@@ -9,9 +9,15 @@ try:
 except ImportError:
     has_mongodb = False
 
+
 def mock_currency(name="TestCurrency"):
     m = Mock()
     m.currency_id = name
+    return m
+
+def mock_badge(name="TestBadge"):
+    m = Mock()
+    m.badge_id = name
     return m
 
 
@@ -37,6 +43,9 @@ def _test_currency_mod_rtn(userid, ret):
     return _find_mod_rtn(userid, {
         "counters": {"currency_TestCurrency": ret}
         })
+
+def _test_badge_mod_rtn(userid, ret):
+    return _find_mod_rtn(userid, {"badges": [ret]})
 
 class CommonTests(object):
 
@@ -94,6 +103,23 @@ class CommonTests(object):
         self._aoc(mck.find,
                   {'_id': 1010},
                   {'counters.currency_TestCurrency': 1})
+
+    def test_add_badge(self):
+        mck = self._find_mod_mck(_test_badge_mod_rtn(1010, "SomeRandomBadge"))
+        db = _simplemock("operant", "operant_users", mck)
+        ds = self.mocked_provider(db)
+
+        callback = Mock()
+
+        ds.add_badge(1010, mock_badge(), callback)
+
+        callback.assert_called_once(True)
+
+        self._aoc(mck.find_and_modify,
+                  {'_id': 1010},
+                  {'$addToSet': {'badges': "TestBadge"}},
+                  fields={"badges": 1},
+                  upsert=True, new=False)
 
 class TestPlainMongodb(CommonTests):
     client_class = "pymongo.Connection"
