@@ -105,7 +105,10 @@ class MongoBase(object):
         self.add_points(user, points, -count, callback)
 
     def get_points(self, user, points, callback):
-        self._counter_get(user, points_name(points), callback)
+        def _parse(obj):
+            res = _extract_points(points, obj)
+            callback(res)
+        self._counter_get(user, points_name(points), _parse)
 
     def track_event(self, event, subject=None, ext=None):
         self._insert_log(dict(event=event, subject=subject, ext=ext))

@@ -104,6 +104,20 @@ class CommonTests(object):
                   fields={"counters.points_TestPoints": 1},
                   upsert=True, new=True)
 
+    def test_get_points(self):
+        mck = self._find_mck(_test_points_mod_rtn(1010, 5))
+        db = _simplemock("operant", "operant_users", mck)
+        ds = self.mocked_provider(db)
+
+        callback = Mock()
+        ds.get_points(1010, mock_points(), callback=callback)
+
+        callback.assert_called_once_with(5)
+
+        self._aoc(mck.find,
+                  {'_id': 1010},
+                  {'counters.points_TestPoints': 1})
+
     def test_add_balance(self):
         mck = self._find_mod_mck(_test_currency_mod_rtn(1010, 5))
         db = _simplemock("operant", "operant_users", mck)
