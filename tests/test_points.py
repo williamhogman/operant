@@ -41,7 +41,7 @@ class TestAward(object):
         point = PointSystem(points_id)
 
         cb = Mock()
-        point.get_count(ds, _m_user(), cb)
+        point.get(ds, _m_user(), cb)
 
         cb.assert_called_once_with(10)
 

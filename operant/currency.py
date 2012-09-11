@@ -31,7 +31,7 @@ class Currency(object):
             callback(n)
         self._add_currency_to_user(store, user, amount, _cb)
 
-    def deduct_balance(self, store, user, amount=1, callback=None):
+    def deduct(self, store, user, amount=1, callback=None):
         """Deducts the passed in amount of this currency from the player"""
         def _cb(n):
             store.track_event("currency.deducted." + self.currency_id,
@@ -39,7 +39,7 @@ class Currency(object):
             callback(n)
         self._deduct_currency_from_user(store, user, amount, _cb)
 
-    def get_balance(self, store, user, callback=None):
+    def get(self, store, user, callback=None):
         """Gets the users balance in the passed  in currency"""
         store.get_balance(user.operant_id(), self, callback)
 

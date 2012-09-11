@@ -52,7 +52,7 @@ class TestCurrency(object):
         currency = Currency(currency_id)
 
         cb = Mock()
-        currency.deduct_balance(ds, _m_user(), 1, cb)
+        currency.deduct(ds, _m_user(), 1, cb)
 
         cb.assert_called_once_with(9)
         ds.deduct_balance.assert_called_once_with(1010, currency, 1, ANY)
@@ -64,7 +64,7 @@ class TestCurrency(object):
         currency = Currency(currency_id)
 
         cb = Mock()
-        currency.get_balance(ds, _m_user(), cb)
+        currency.get(ds, _m_user(), cb)
 
         cb.assert_called_once_with(9)
         ds.get_balance.assert_called_once_with(1010, currency, ANY)
