@@ -27,7 +27,7 @@ class Index(web.RequestHandler):
         self.write("<a href='/gimme-points'>Gimme XP!</a>")
         user = User(self.get_argument("user", "anon"))
         pts = point.get("experience")
-        res = yield gen.Task(pts.get_count, ds, user)
+        res = yield gen.Task(pts.get, ds, user)
         self.write("<p>You currently have {0} XP</p>".format(res))
         self.finish()
 
