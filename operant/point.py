@@ -39,7 +39,7 @@ class PointSystem(object):
             callback(n)
         self._add_points_to_user(store, user, amount, _cb)
 
-    def get_count(self, store, user, callback=None):
+    def get(self, store, user, callback=None):
         """Gets the number of points a player has"""
         store.get_points(user.operant_id(), self, callback)
 
